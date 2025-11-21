@@ -39,4 +39,18 @@ public class UsuarioDAO {
         }
         return null;
     }
+    public boolean criarUsuario(Usuario user) throws SQLException {
+    String sql = "INSERT INTO usuarios (nome, email, senha, perfil) VALUES (?, ?, ?, ?)";
+
+    try (Connection conn = connect();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setString(1, user.getNome());
+        stmt.setString(2, user.getEmail());
+        stmt.setString(3, user.getSenha()); // já deve vir hash se usar hash
+        stmt.setString(4, user.getPerfil());
+
+        return stmt.executeUpdate() > 0;
+        }
+    }
 }

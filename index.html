@@ -22,37 +22,21 @@
                 
                 <p id="erro" style="color:red; display:none;">Email ou senha inválidos</p>
             </form>
-            <p class="small">Sem conta? Peça ao administrador para criar ou use <strong>volunteer@example.com</strong>
-                para teste.</p>
+
+            <p class="small">
+                Sem conta? Clique abaixo para criar:
+            </p>
+
+            <!-- 🔹 BOTÃO DE CADASTRO -->
+            <a href="cadastro.html" class="btn ghost" 
+               style="margin-top:10px; display:block; text-align:center;">
+                Criar uma conta
+            </a>
+
         </section>
     </main>
 
     <script src="app.js"></script>
-    <script>
-        // comportamento da tela de login
-        document.getElementById('loginForm').addEventListener('submit', async (ev) => {
-            ev.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('loginMsg');
-            msg.textContent = '';
-
-            if (!email || password.length < 8) {
-                msg.textContent = 'Preencha email e senha (mínimo 8 caracteres).';
-                return;
-            }
-            try {
-                const res = await apiFetch('/auth/login', { email, password }, { method: 'POST', noAuth: true });
-                // apiFetch retorna json ou lança erro
-                localStorage.setItem('token', res.token);
-                // opcional: decodificar role se o token trouxer (ou buscar /auth/me)
-                window.location.href = 'jobs.html';
-            } catch (err) {
-                console.error(err);
-                msg.textContent = err.message || 'Erro ao autenticar.';
-            }
-        });
-    </script>
 </body>
 
 </html>

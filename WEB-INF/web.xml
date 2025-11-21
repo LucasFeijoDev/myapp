@@ -35,4 +35,14 @@
         <url-pattern>/api/tarefas/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>CadastroServlet</servlet-name>
+        <servlet-class>controllers.CadastroServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CadastroServlet</servlet-name>
+        <url-pattern>/api/cadastro</url-pattern>
+    </servlet-mapping>
+
 </web-app>

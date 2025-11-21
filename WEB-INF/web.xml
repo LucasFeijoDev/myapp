@@ -6,16 +6,6 @@
          version="3.1">
 
     <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>controllers.LoginServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/api/login</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>UsuarioServlet</servlet-name>
         <servlet-class>controllers.UsuarioServlet</servlet-class>
     </servlet>
@@ -26,23 +16,30 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>TarefaServlet</servlet-name>
-        <servlet-class>controllers.TarefaServlet</servlet-class>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>controllers.LoginServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
-        <servlet-name>TarefaServlet</servlet-name>
-        <url-pattern>/api/tarefas/*</url-pattern>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/api/login</url-pattern>
     </servlet-mapping>
-
+    
     <servlet>
         <servlet-name>CadastroServlet</servlet-name>
         <servlet-class>controllers.CadastroServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>CadastroServlet</servlet-name>
         <url-pattern>/api/cadastro</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>VagasServlet</servlet-name>
+        <servlet-class>controllers.VagasServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VagasServlet</servlet-name>
+        <url-pattern>/api/vagas</url-pattern>
     </servlet-mapping>
 
 </web-app>

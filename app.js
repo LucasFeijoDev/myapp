@@ -21,12 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.ok) {
                     const data = await response.json();
 
-                    // Redireciona baseado no perfil (opcional)
-                    if (data.perfil === "admin") {
-                        window.location.href = "report.html";
-                    } else {
-                        window.location.href = "jobs.html";
-                    }
+                    window.location.href = "jobs.html"
+
                 } else if (response.status === 401) {
                     erroMsg.textContent = "Email ou senha incorretos.";
                     erroMsg.style.display = "block";

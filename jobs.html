@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vagas - Futuro do Trabalho</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h2>Vagas</h2>
+    <nav>
+      <button id="btnNewJob" class="btn small hidden">Nova vaga</button>
+      <button id="btnReport" class="btn small">Registrar ocorrência</button>
+      <button id="btnLogout" class="btn small ghost">Sair</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="jobsList" class="cards-grid"></section>
+    <p id="jobsMsg" class="info"></p>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    // require autenticação
+    ensureAuth();
+
+    // elementos
+    const jobsList = document.getElementById('jobsList');
+    const jobsMsg = document.getElementById('jobsMsg');
+    const btnLogout = document.getElementById('btnLogout');
+    const btnReport = document.getElementById('btnReport');
+    const btnNewJob = document.getElementById('btnNewJob');
+
+    btnLogout.addEventListener('click', () => { localStorage.removeItem('token'); window.location = 'index.html'; });
+    btnReport.addEventListener('click', () => window.location = 'report.html');
+
+    // mostrar botão criar vaga se role for admin
+    (async function setupRole() {
+      try {
+        const profile = await apiFetch('/auth/me', {}, { method: 'GET' });
+        if (profile.role === 'admin') {
+          btnNewJob.classList.remove('hidden');
+          btnNewJob.addEventListener('click', showNewJobForm);
+        }
+      } catch (e) {
+        console.warn('não foi possível obter perfil', e);
+      }
+    })();
+
+    // carregar vagas
+    (async function loadJobs() {
+      jobsMsg.textContent = '';
+      try {
+        const data = await apiFetch('/jobs', {}, { method: 'GET' });
+        if (!Array.isArray(data) || data.length === 0) {
+          jobsMsg.textContent = 'Nenhuma vaga encontrada.';
+          return;
+        }
+        jobsList.innerHTML = '';
+        data.forEach(j => {
+          const card = document.createElement('article');
+          card.className = 'card job-card';
+          // usar textContent para evitar XSS
+          const title = document.createElement('h3'); title.textContent = j.title || 'Sem título';
+          const desc = document.createElement('p'); desc.textContent = j.description || '';
+          const loc = document.createElement('p'); loc.className='muted'; loc.textContent = j.location || '';
+          const btn = document.createElement('button'); btn.className='btn small'; btn.textContent = 'Ver/Reportar';
+          btn.onclick = () => {
+            // preenche report.html via query param
+            window.location = `report.html?jobId=${encodeURIComponent(j.id)}&title=${encodeURIComponent(j.title)}`;
+          };
+          card.appendChild(title); card.appendChild(desc); card.appendChild(loc); card.appendChild(btn);
+          jobsList.appendChild(card);
+        });
+      } catch (err) {
+        jobsMsg.textContent = 'Erro ao carregar vagas.';
+        console.error(err);
+      }
+    })();
+
+    function showNewJobForm(){
+      // simples modal em prompt para criar vaga — backend deve suportar POST /jobs
+      const title = prompt('Título da vaga');
+      if (!title) return;
+      const desc = prompt('Descrição (opcional)');
+      const location = prompt('Local (opcional)');
+      (async () => {
+        try {
+          const created = await apiFetch('/jobs', { title, description: desc, location }, { method: 'POST' });
+          alert('Vaga criada: ' + (created.id||'OK'));
+          loadJobs();
+        } catch (e) {
+          alert('Erro ao criar vaga: ' + (e.message || e));
+        }
+      })();
+    }
+  </script>
+</body>
+</html>

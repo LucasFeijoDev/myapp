@@ -1,0 +1,21 @@
+┌─────────────────┐    ┌─────────────────────┐    ┌──────────────────┐
+│    USUARIOS     │    │  USUARIO_HABILIDADE │    │   HABILIDADES    │
+├─────────────────┤    ├─────────────────────┤    ├──────────────────┤
+│ id (PK)         │◄───┤ usuario_id (FK)     │    │ id (PK)          │
+│ nome            │    │ habilidade_id (FK)  │───►│ nome             │
+│ email           │    └─────────────────────┘    │ descricao        │
+│ senha           │                               └──────────────────┘
+│ perfil          │
+└─────────────────┘
+        │
+        │
+        ▼
+┌─────────────────┐    ┌──────────────────┐
+│    TAREFAS      │    │      VAGAS       │
+├─────────────────┤    ├──────────────────┤
+│ id (PK)         │    │ id (PK)          │
+│ titulo          │    │ titulo           │
+│ descricao       │    │ descricao        │
+│ status          │    │ habilidades_     │
+│ usuario_id (FK) │    │ necessarias      │
+└─────────────────┘    └──────────────────┘

@@ -49,6 +49,19 @@ public class HabilidadeDAO {
         }
     }
 
+    public boolean removerHabilidadeUsuario(int usuarioId, int habilidadeId) throws SQLException {
+        String sql = "DELETE FROM usuario_habilidade WHERE usuario_id = ? AND habilidade_id = ?";
+        
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, usuarioId);
+            stmt.setInt(2, habilidadeId);
+            
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
     public List<Habilidade> listarHabilidadesUsuario(int usuarioId) throws SQLException {
         String sql = "SELECT h.* FROM habilidades h " +
                     "JOIN usuario_habilidade uh ON h.id = uh.habilidade_id " +

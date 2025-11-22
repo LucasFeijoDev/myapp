@@ -10,8 +10,6 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 function verificarSessao() {
-    // Na prática, você faria uma chamada API para verificar a sessão
-    // Por enquanto, vamos assumir que se chegou aqui, está logado
     console.log("Usuário logado - carregando dados...");
 }
 
@@ -29,31 +27,63 @@ async function carregarDados() {
 }
 
 async function carregarHabilidades() {
-    const response = await fetch('/myapp/api/vagas?action=habilidades');
-    todasHabilidades = await response.json();
-    popularSelectHabilidades();
+    try {
+        const response = await fetch('/myapp/api/vagas?action=habilidades');
+        if (response.ok) {
+            todasHabilidades = await response.json();
+            popularSelectHabilidades();
+        } else {
+            console.error('Erro ao carregar habilidades:', response.status);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar habilidades:', error);
+    }
 }
 
 async function carregarMinhasHabilidades() {
-    const response = await fetch('/myapp/api/vagas?action=minhas-habilidades');
-    minhasHabilidades = await response.json();
-    exibirMinhasHabilidades();
+    try {
+        const response = await fetch('/myapp/api/vagas?action=minhas-habilidades');
+        if (response.ok) {
+            minhasHabilidades = await response.json();
+            exibirMinhasHabilidades();
+        } else {
+            console.error('Erro ao carregar minhas habilidades:', response.status);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar minhas habilidades:', error);
+    }
 }
 
 async function carregarVagas() {
-    const response = await fetch('/myapp/api/vagas');
-    todasVagas = await response.json();
-    exibirVagas();
+    try {
+        const response = await fetch('/myapp/api/vagas');
+        if (response.ok) {
+            todasVagas = await response.json();
+            exibirVagas();
+        } else {
+            console.error('Erro ao carregar vagas:', response.status);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar vagas:', error);
+    }
 }
 
 function popularSelectHabilidades() {
     const select = document.getElementById('selectHabilidades');
     select.innerHTML = '<option value="">Selecione uma habilidade</option>';
     
-    todasHabilidades.forEach(habilidade => {
+    // Filtrar apenas habilidades que o usuário ainda não possui
+    const habilidadesDisponiveis = todasHabilidades.filter(habilidade => 
+        !minhasHabilidades.some(minhaHabilidade => minhaHabilidade.id === habilidade.id)
+    );
+    
+    habilidadesDisponiveis.forEach(habilidade => {
         const option = document.createElement('option');
         option.value = habilidade.id;
         option.textContent = habilidade.nome;
+        if (habilidade.descricao) {
+            option.textContent += ` - ${habilidade.descricao}`;
+        }
         select.appendChild(option);
     });
 }
@@ -69,10 +99,30 @@ function exibirMinhasHabilidades() {
     
     minhasHabilidades.forEach(habilidade => {
         const li = document.createElement('li');
-        li.textContent = habilidade.nome;
-        if (habilidade.descricao) {
-            li.innerHTML += ` <span class="muted">- ${habilidade.descricao}</span>`;
-        }
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.alignItems = 'center';
+        li.style.marginBottom = '8px';
+        li.style.padding = '8px';
+        li.style.backgroundColor = '#f9f9f9';
+        li.style.borderRadius = '4px';
+        li.style.border = '1px solid #e0e0e0';
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `
+            <strong>${habilidade.nome}</strong>
+            ${habilidade.descricao ? `<br><span class="muted" style="font-size: 0.9em;">${habilidade.descricao}</span>` : ''}
+        `;
+        
+        const btnRemover = document.createElement('button');
+        btnRemover.textContent = 'Remover';
+        btnRemover.className = 'btn small ghost';
+        btnRemover.style.marginLeft = '10px';
+        btnRemover.style.flexShrink = '0';
+        btnRemover.onclick = () => removerHabilidade(habilidade.id);
+        
+        li.appendChild(infoDiv);
+        li.appendChild(btnRemover);
         lista.appendChild(li);
     });
 }
@@ -137,7 +187,6 @@ function calcularCompatibilidade() {
         }
     });
     
-    // Atualizar resumo de compatibilidade
     atualizarResumoCompatibilidade();
 }
 
@@ -178,15 +227,48 @@ async function adicionarHabilidade() {
         
         if (response.ok) {
             alert('Habilidade adicionada com sucesso!');
+            // Recarregar tudo para garantir sincronização
             await carregarMinhasHabilidades();
+            await carregarHabilidades();
             calcularCompatibilidade();
             select.value = '';
         } else {
-            alert('Erro ao adicionar habilidade');
+            const errorText = await response.text();
+            alert('Erro ao adicionar habilidade: ' + errorText);
         }
     } catch (error) {
         console.error('Erro:', error);
-        alert('Erro ao adicionar habilidade');
+        alert('Erro ao adicionar habilidade: ' + error.message);
+    }
+}
+
+async function removerHabilidade(habilidadeId) {
+    if (!confirm('Tem certeza que deseja remover esta habilidade?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/myapp/api/vagas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=remover-habilidade&habilidade_id=${habilidadeId}`
+        });
+        
+        if (response.ok) {
+            alert('Habilidade removida com sucesso!');
+            // Recarregar tudo para garantir sincronização
+            await carregarMinhasHabilidades();
+            await carregarHabilidades();
+            calcularCompatibilidade();
+        } else {
+            const errorText = await response.text();
+            alert('Erro ao remover habilidade: ' + errorText);
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao remover habilidade: ' + error.message);
     }
 }
 
@@ -199,7 +281,6 @@ function fecharModal() {
 }
 
 function sair() {
-    // Limpar sessão e redirecionar para login
     fetch('/myapp/api/logout', { method: 'POST' })
         .finally(() => {
             window.location.href = 'index.html';

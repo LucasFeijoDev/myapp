@@ -65,12 +65,18 @@ public class VagasServlet extends HttpServlet {
             return;
         }
         
+        Integer usuarioId = (Integer) session.getAttribute("usuarioId");
+        if (usuarioId == null) {
+            resp.sendError(401, "Usuário não logado");
+            return;
+        }
+        
         try {
+            HabilidadeDAO habilidadeDAO = new HabilidadeDAO(getServletContext());
+            
             if ("adicionar-habilidade".equals(action)) {
-                int usuarioId = (Integer) session.getAttribute("usuarioId");
                 int habilidadeId = Integer.parseInt(req.getParameter("habilidade_id"));
                 
-                HabilidadeDAO habilidadeDAO = new HabilidadeDAO(getServletContext());
                 boolean success = habilidadeDAO.adicionarHabilidadeUsuario(usuarioId, habilidadeId);
                 
                 if (success) {
@@ -79,7 +85,24 @@ public class VagasServlet extends HttpServlet {
                 } else {
                     resp.sendError(400, "Erro ao adicionar habilidade");
                 }
+            } else if ("remover-habilidade".equals(action)) {
+                int habilidadeId = Integer.parseInt(req.getParameter("habilidade_id"));
+                
+                boolean success = habilidadeDAO.removerHabilidadeUsuario(usuarioId, habilidadeId);
+                
+                if (success) {
+                    resp.setStatus(200);
+                    resp.getWriter().write("{\"message\":\"Habilidade removida com sucesso\"}");
+                } else {
+                    resp.sendError(400, "Erro ao remover habilidade");
+                }
+            } else {
+                resp.sendError(400, "Ação não reconhecida");
             }
+        } catch (NumberFormatException e) {
+            resp.sendError(400, "ID de habilidade inválido");
+        } catch (SQLException e) {
+            resp.sendError(500, "Erro no banco de dados: " + e.getMessage());
         } catch (Exception e) {
             resp.sendError(500, "Erro no servidor: " + e.getMessage());
         }

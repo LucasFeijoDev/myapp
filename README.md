@@ -1,2 +1,14 @@
 "# Projeto_GS_2025_Fiap" 
 "# Projeto_GS_2025_Fiap" 
+
+## INSTRUCAO IMPORTANTE
+
+1_BAIXAR O TOMCAT 9.0
+2_ABRIR NO VS CODE
+  2.2_ABRIR TERMINAL
+  2.3_CD .../webapps
+  2.4_GIT CLONE REPO
+
+3_COMPILAR CLASSES JAVA
+4_EXECUTAR STARTUP: .\apache-tomcat-9.0.112\bin\startup.bat
+5_ACESSAR http://localhost:8080/myapp NO NAVEGADOR
